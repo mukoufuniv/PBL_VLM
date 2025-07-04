@@ -1,0 +1,17 @@
+# .gitignore
+memory_log.db
+# Pythonキャッシュ
+__pycache__/
+*.pyc
+
+# 生成されるデータ
+history/
+result_*.jpg
+
+# 仮想環境フォルダ (例)
+venv/
+.venv/
+
+# IDE/エディタ設定
+.vscode/
+.idea/
