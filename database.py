@@ -4,6 +4,7 @@ import sqlite3
 import os
 from datetime import datetime
 import config
+import shutil
 
 # init_dbは変更なし
 def init_db():
@@ -61,3 +62,28 @@ def search_for_object(keyword):
     results = cursor.fetchall()
     conn.close()
     return results
+
+def clear_db():
+    """データベースの全レコードと、historyフォルダ内の全画像ファイルを削除する"""
+    try:
+        # 1. データベースの全レコードを削除
+        conn = sqlite3.connect(config.DB_NAME)
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM detections")
+        conn.commit()
+        conn.close()
+        print("データベースの全レコードを削除しました。")
+
+        # 2. historyフォルダの中身を全て削除
+        history_path = config.HISTORY_DIR
+        if os.path.exists(history_path):
+            # 一度フォルダを削除して、再度作成するのが簡単で確実
+            shutil.rmtree(history_path)
+            os.makedirs(history_path)
+            print("historyフォルダ内の全画像ファイルを削除しました。")
+        
+        return True, "データベースと履歴ファイルを正常にクリアしました。"
+        
+    except Exception as e:
+        print(f"データベースのクリア中にエラーが発生しました: {e}")
+        return False, f"エラーが発生しました: {e}"

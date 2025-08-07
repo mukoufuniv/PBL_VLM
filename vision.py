@@ -3,7 +3,7 @@
 import torch
 import time
 from PIL import ImageDraw, ImageFont
-from transformers import AutoProcessor, AutoModelForCausalLM
+from transformers import AutoProcessor, AutoModelForCausalLM,AutoConfig
 import numpy as np
 from datetime import datetime
 import os
@@ -61,9 +61,9 @@ class VLM_Detector:
             detections = results[task_prompt]
             bboxes = detections.get('bboxes', [])
             labels = detections.get('labels', [])
-            for box, label in zip(bboxes, labels):
-                # ブラックリストに含まれる不要なオブジェクトは無視
-                if not any(keyword in label for keyword in config.BLACKLIST_KEYWORDS):
+            for box, label in zip(bboxes, labels):   
+                # ホワイトリストに含まれるキーワードがラベルに含まれている場合のみを対象とする
+                if any(keyword in label for keyword in config.WHITELIST_KEYWORDS):
                     current_detections.append({'bbox': box, 'label': label, 'center': get_bbox_center(box)})
 
         # ★★★ ここからがトラッキングのメインロジック ★★★

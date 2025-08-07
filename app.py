@@ -10,7 +10,41 @@ import config # config.pyをインポート
 st.set_page_config(page_title="忘れ物捜索アプリ", layout="wide")
 st.title("🕵️ 忘れ物捜索アプリ")
 st.write("過去にカメラが認識した物体を検索できます。")
+# サイドバーに管理機能を追加
+st.sidebar.title("管理メニュー")
 
+if st.sidebar.button("データベースをクリアする"):
+    # ボタンが押されたら、確認のための状態をセッションに保存
+    st.session_state.confirm_delete = True
+
+# 確認状態にある場合のみ、確認メッセージとボタンを表示
+if 'confirm_delete' in st.session_state and st.session_state.confirm_delete:
+    st.sidebar.warning("本当に全ての検出履歴と画像ファイルを削除しますか？この操作は元に戻せません。")
+    
+    col1, col2 = st.sidebar.columns(2)
+    
+    with col1:
+        if st.button("はい、削除します", type="primary"):
+            success, message = database.clear_db()
+            if success:
+                st.success(message)
+            else:
+                st.error(message)
+            # 処理が終わったら確認状態をリセット
+            st.session_state.confirm_delete = False
+            # 画面をリフレッシュして結果を反映
+            st.rerun() 
+
+    with col2:
+        if st.button("キャンセル"):
+            # キャンセルされたら確認状態をリセット
+            st.session_state.confirm_delete = False
+            st.info("クリア処理はキャンセルされました。")
+            # 画面をリフレッシュ
+            st.rerun() 
+
+
+st.sidebar.markdown("---") # 区切り線
 # --- 検索フォーム ---
 search_term = st.text_input("探している物体のキーワードを入力してください（例: key, cup）", "")
 
